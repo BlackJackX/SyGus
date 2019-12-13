@@ -1,0 +1,12 @@
+(define-fun findIdx ((y1 Int) (y2 Int) (k1 Int)) Int 1)
+(assert (=> (< x1 x2) (=> (< k x1) (= (findIdx x1 x2 k) 0))))
+(assert (=> (< x1 x2) (=> (> k x2) (= (findIdx x1 x2 k) 2))))
+(assert (=> (< x1 x2) (=> (and (> k x1) (< k x2)) (= (findIdx x1 x2 k) 1))))
+
+[Implies(x1 < x2, Implies(k < x1, 1 == 0)),
+ Implies(x1 < x2, Implies(k > x2, 1 == 2)),
+ Implies(x1 < x2, Implies(And(k > x1, k < x2), 1 == 1))]
+
+And(Implies(x1 < x2, Implies(k < x1, 1 == 0)),
+    Implies(x1 < x2, Implies(k > x2, 1 == 2)),
+    Implies(x1 < x2, Implies(And(k > x1, k < x2), 1 == 1)))
