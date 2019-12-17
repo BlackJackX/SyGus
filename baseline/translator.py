@@ -107,9 +107,9 @@ def ReadQuery(bmExpr):
             spec_smt2='\n'.join(spec_smt2)
             #print spec_smt2
             spec = parse_smt2_string(spec_smt2,decls=dict(self.VarTable))
-            #todo: 判别式真假
-            spec = And(Not(And(spec)), Or(spec))
-            self.solver.add(spec)
+
+            spec = And(spec)
+            self.solver.add(Not(spec))
             if verbose:
                 print("spec:",spec)
 

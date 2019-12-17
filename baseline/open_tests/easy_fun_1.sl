@@ -1,9 +1,6 @@
-; max3.sl
-; Synthesize the maximum of 2 integers, from a purely declarative spec
-
 (set-logic LIA)
 
-(synth-fun max2 ((x Int) (y Int)) Int
+(synth-fun fun ((x Int) (y Int)) Int
     ((Start Int (x
                  y
                  0
@@ -21,10 +18,7 @@
 (declare-var x Int)
 (declare-var y Int)
 
-(constraint (>= (max2 x y) x))
-(constraint (>= (max2 x y) y))
-(constraint (or (= x (max2 x y))
-				(= y (max2 x y))))
+(constraint (>= (fun x y) y))
 
 
 (check-synth)

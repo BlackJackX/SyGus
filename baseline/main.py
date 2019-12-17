@@ -1,7 +1,9 @@
+import random
 import sys
 import sexp
 import pprint
 import translator
+from baseline.DNF import *
 
 def Extend(Stmts,Productions):
     ret = []
@@ -12,7 +14,9 @@ def Extend(Stmts,Productions):
                 for extended in TryExtend:
                     ret.append(Stmts[0:i]+[extended]+Stmts[i+1:])
         elif Stmts[i] in Productions.keys():
-            for extended in Productions[Stmts[i]]:
+            randomExtended = Productions[Stmts[i]]
+            random.shuffle(randomExtended)
+            for extended in randomExtended:
                 ret.append(Stmts[0:i]+[extended]+Stmts[i+1:])
     return ret
 
@@ -22,6 +26,18 @@ def stripComments(bmFile):
         line = line.split(';', 1)[0]
         noComments += line
     return noComments + ')'
+
+# todo: insert new constrain
+def appendConstrain(checker, counterexample):
+    constrain = ['constrain', [], []]
+    ce = [checker.synFunction.name]
+    constrain[1].append('=')
+    for arg in checker.synFunction.argList:
+        ce.append(counterexample.eval[arg])
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -50,7 +66,7 @@ if __name__ == '__main__':
         NTType = NonTerm[1]
         if NTType == Type[StartSym]:
             Productions[StartSym].append(NTName)
-        Type[NTName] = NTType;
+        Type[NTName] = NTType
         #Productions[NTName] = NonTerm[2]
         Productions[NTName] = []
         for NT in NonTerm[2]:
@@ -58,10 +74,14 @@ if __name__ == '__main__':
                 Productions[NTName].append(str(NT[1])) # deal with ('Int',0). You can also utilize type information, but you will suffer from these tuples.
             else:
                 Productions[NTName].append(NT)
+
+    raw = constraint2clause(FuncDefine, checker.VarTable, checker.Constraints)
+    clause = raw2DNF(raw)
+    print(clause)
     Count = 0
     while(len(BfsQueue)!=0):
         Curr = BfsQueue.pop(0)
-        print("Extending "+str(Curr))
+        #print("Extending "+str(Curr))
         TryExtend = Extend(Curr,Productions)
         if(len(TryExtend)==0): # Nothing to extend
             FuncDefineStr = translator.toString(FuncDefine,ForceBracket = True) # use Force Bracket = True on function definition. MAGIC CODE. DO NOT MODIFY THE ARGUMENT ForceBracket = True.
@@ -70,15 +90,16 @@ if __name__ == '__main__':
             #Str = translator.toString(SynFunResult)
             Str = FuncDefineStr[:-1]+' '+ CurrStr+FuncDefineStr[-1] # insert Program just before the last bracket ')'
             Count += 1
-            # print (Count)
-            # print (Str)
+            print (Count)
+            print (Str)
             # if Count % 100 == 1:
                 # print (Count)
                 # print (Str)
                 #raw_input()
             #print '1'
             counterexample = checker.check(Str)
-            #print counterexample
+            appendConstrain(checker, counterexample)
+            print (counterexample)
             if(counterexample == None): # No counter-example
                 Ans = Str
                 break
