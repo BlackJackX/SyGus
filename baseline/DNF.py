@@ -132,6 +132,11 @@ unsat   = CheckSatResult(Z3_L_FALSE)
 unknown = CheckSatResult(Z3_L_UNDEF)
 
 def check_sat(clause):
+    """
+    检查单个字句是否sat
+    :param clause:
+    :return:
+    """
     s = Solver()
     s.add(clause)
 
@@ -140,4 +145,30 @@ def check_sat(clause):
     else:
         return False
 
+def deep_simplify(clause, **kwargs):
+    """
+    深度简化逻辑语句
+    :param clause:
+    :return:
+    """
 
+    if clause.children() == [] or (clause.decl().name() != 'and' and \
+        clause.decl().name() != 'or' and clause.decl().name() != 'not'):
+        return clause
+    op = clause.decl().name()
+    children = clause.children()
+    children = list(map(lambda c: deep_simplify(c, **kwargs), children))
+
+    if op == 'and':
+        return simplify(And(children))
+    elif op == 'or':
+        return simplify(Or(children))
+    else:
+        return simplify(Not(children[0]))
+
+
+def func_transform(clause):
+    pass
+
+def has_func(clause):
+    children = clause.children()
