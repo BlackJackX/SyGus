@@ -1,9 +1,8 @@
-from baseline.DNF import *
+from baseline.transform import *
 from z3 import *
 f = Function('f', IntSort(), IntSort())
 x = Int('x')
-p = Bool('p')
-q = Bool('q')
-r = Bool('r')
+y = Int('y')
+z = Int('z')
 
-print(deep_simplify(Or(And(p,And(q,And(q,And(x>2))),Or(r,q)))))
+print(list(filter(has_func, [['=', 'x', ['max3', 'x', 'y', 'z']]])))

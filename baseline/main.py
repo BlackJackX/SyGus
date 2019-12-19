@@ -4,6 +4,7 @@ import sexp
 import pprint
 import translator
 from baseline.DNF import *
+from baseline.transform import *
 
 def Extend(Stmts,Productions):
     ret = []
@@ -74,50 +75,8 @@ if __name__ == '__main__':
                 Productions[NTName].append(str(NT[1])) # deal with ('Int',0). You can also utilize type information, but you will suffer from these tuples.
             else:
                 Productions[NTName].append(NT)
+    constraints = pipline(checker.Constraints)
+    print(constraints)
 
-    raw = constraint2clause(FuncDefine, checker.VarTable, checker.Constraints)
-    clause = raw2DNF(raw)
-    print(clause)
-    Count = 0
-    while(len(BfsQueue)!=0):
-        Curr = BfsQueue.pop(0)
-        #print("Extending "+str(Curr))
-        TryExtend = Extend(Curr,Productions)
-        if(len(TryExtend)==0): # Nothing to extend
-            FuncDefineStr = translator.toString(FuncDefine,ForceBracket = True) # use Force Bracket = True on function definition. MAGIC CODE. DO NOT MODIFY THE ARGUMENT ForceBracket = True.
-            CurrStr = translator.toString(Curr)
-            #SynFunResult = FuncDefine+Curr
-            #Str = translator.toString(SynFunResult)
-            Str = FuncDefineStr[:-1]+' '+ CurrStr+FuncDefineStr[-1] # insert Program just before the last bracket ')'
-            Count += 1
-            print (Count)
-            print (Str)
-            # if Count % 100 == 1:
-                # print (Count)
-                # print (Str)
-                #raw_input()
-            #print '1'
-            counterexample = checker.check(Str)
-            appendConstrain(checker, counterexample)
-            print (counterexample)
-            if(counterexample == None): # No counter-example
-                Ans = Str
-                break
-            #print '2'
-        #print(TryExtend)
-        #raw_input()
-        #BfsQueue+=TryExtend
-        TE_set = set()
-        for TE in TryExtend:
-            TE_str = str(TE)
-            if not TE_str in TE_set:
-                BfsQueue.append(TE)
-                TE_set.add(TE_str)
 
-    print(Ans)
 
-	# Examples of counter-examples    
-	# print (checker.check('(define-fun max2 ((x Int) (y Int)) Int 0)'))
-    # print (checker.check('(define-fun max2 ((x Int) (y Int)) Int x)'))
-    # print (checker.check('(define-fun max2 ((x Int) (y Int)) Int (+ x y))'))
-    # print (checker.check('(define-fun max2 ((x Int) (y Int)) Int (ite (<= x y) y x))'))
