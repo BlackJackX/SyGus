@@ -1,7 +1,11 @@
+import random
 import sys
 import sexp
 import pprint
 import translator
+from baseline.DNF import *
+from baseline.transform import *
+import os
 
 def Extend(Stmts,Productions):
     ret = []
@@ -12,7 +16,9 @@ def Extend(Stmts,Productions):
                 for extended in TryExtend:
                     ret.append(Stmts[0:i]+[extended]+Stmts[i+1:])
         elif Stmts[i] in Productions.keys():
-            for extended in Productions[Stmts[i]]:
+            randomExtended = Productions[Stmts[i]]
+            random.shuffle(randomExtended)
+            for extended in randomExtended:
                 ret.append(Stmts[0:i]+[extended]+Stmts[i+1:])
     return ret
 
@@ -23,15 +29,32 @@ def stripComments(bmFile):
         noComments += line
     return noComments + ')'
 
+# todo: insert new constrain
+def appendConstrain(checker, counterexample):
+    constrain = ['constrain', [], []]
+    ce = [checker.synFunction.name]
+    constrain[1].append('=')
+    for arg in checker.synFunction.argList:
+        ce.append(counterexample.eval[arg])
 
 
-if __name__  == '__main__':
-    benchmarkFile = open(sys.argv[1])
+def constraints2prog(constraints, func):
+    s1 = '(' + func[0] + ' ' + func[1] + ' '
+    s2 = '('
+    for v in func[2]:
+        s2 += '(' + v[0] + ' ' + v[1] + ')'
+    s2 += ')'
+    s3 = ' ' + func[3] + ' ' + constraints + ')'
+    return s1 + s2 + s3
+
+
+
+def main(test_path):
+    benchmarkFile = open(test_path)
     bm = stripComments(benchmarkFile)
     bmExpr = sexp.sexp.parseString(bm, parseAll=True).asList()[0] #Parse string to python list
     #pprint.pprint(bmExpr)
     checker=translator.ReadQuery(bmExpr)
-
     #print (checker.check('(define-fun f ((x Int)) Int (mod (* x 3) 10)  )'))
     #raw_input()
     SynFunExpr = []
@@ -46,3 +69,32 @@ if __name__  == '__main__':
     BfsQueue = [[StartSym]] #Top-down
     Productions = {StartSym:[]}
     Type = {StartSym:SynFunExpr[3]} # set starting symbol's return type
+
+    for NonTerm in SynFunExpr[4]: #SynFunExpr[4] is the production rules
+        NTName = NonTerm[0]
+        NTType = NonTerm[1]
+        if NTType == Type[StartSym]:
+            Productions[StartSym].append(NTName)
+        Type[NTName] = NTType
+        #Productions[NTName] = NonTerm[2]
+        Productions[NTName] = []
+        for NT in NonTerm[2]:
+            if type(NT) == tuple:
+                Productions[NTName].append(str(NT[1])) # deal with ('Int',0). You can also utilize type information, but you will suffer from these tuples.
+            else:
+                Productions[NTName].append(NT)
+    constraints = pipline(checker.Constraints)
+    program = constraints2prog(constraints, FuncDefine)
+    counterexample = checker.check(program)
+    if counterexample is None:
+        print('------------------------------')
+        print(FuncDefine)
+        print(program)
+        print('------------------------------')
+
+if __name__ == '__main__':
+    for test in os.listdir('./open_tests'):
+        try:
+            main('./open_tests/'+test)
+        except:
+            pass

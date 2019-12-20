@@ -47,7 +47,8 @@ def constraints2prog(constraints, func):
     return s1 + s2 + s3
 
 
-if __name__ == '__main__':
+
+def main():
     benchmarkFile = open(sys.argv[1])
     bm = stripComments(benchmarkFile)
     bmExpr = sexp.sexp.parseString(bm, parseAll=True).asList()[0] #Parse string to python list
@@ -84,6 +85,10 @@ if __name__ == '__main__':
     constraints = pipline(checker.Constraints)
     program = constraints2prog(constraints, FuncDefine)
     counterexample = checker.check(program)
-    print(counterexample)
+    if counterexample is None:
+        print('------------------------------')
+        print(FuncDefine)
+        print(program)
 
-
+if __name__ == '__main__':
+    main()
