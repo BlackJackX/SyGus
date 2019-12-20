@@ -33,19 +33,30 @@ class Clause():
         return clause
 
     def clause2prog(self):
-        prog = ""
-        for i in range(len(self.defDom)):
-            subprog = "(ite "
-            subprog += defDom2str(self.defDom) + ' '
-            subprog += self.valDom + ' '
+        return self.valdef2str(self.defDom, self.valDom)
 
 
     @staticmethod
-    def defDom2str(s, defDom):
+    def defDom2str(defDom):
+        s = ''
+        if len(defDom) == 1:
+            return '(%s %s %s) ' %tuple(defDom[0])
         s += '(and '
-        s += '(%s %s %s)' %tuple(defDom[0])
+        s += '(%s %s %s) ' %tuple(defDom[0])
+        s += Clause.defDom2str(defDom[1:])
+        s += ')'
+        return s
 
-
+    @staticmethod
+    def valdef2str(defDom, valDom):
+        s = ''
+        if len(valDom) == 1:
+            return '(ite %s %s 0)' %(Clause.defDom2str(defDom[0]), valDom[0])
+        s += '(ite '
+        s += '%s %s ' %(Clause.defDom2str(defDom[0]), valDom[0])
+        s += Clause.valdef2str(defDom[1:], valDom[1:])
+        s += ')'
+        return s
 
 
 def rev(constraints):

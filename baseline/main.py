@@ -37,8 +37,14 @@ def appendConstrain(checker, counterexample):
         ce.append(counterexample.eval[arg])
 
 
-
-
+def constraints2prog(constraints, func):
+    s1 = '(' + func[0] + ' ' + func[1] + ' '
+    s2 = '('
+    for v in func[2]:
+        s2 += '(' + v[0] + ' ' + v[1] + ')'
+    s2 += ')'
+    s3 = ' ' + func[3] + ' ' + constraints + ')'
+    return s1 + s2 + s3
 
 
 if __name__ == '__main__':
@@ -76,7 +82,8 @@ if __name__ == '__main__':
             else:
                 Productions[NTName].append(NT)
     constraints = pipline(checker.Constraints)
-    print(constraints)
-
+    program = constraints2prog(constraints, FuncDefine)
+    counterexample = checker.check(program)
+    print(counterexample)
 
 
