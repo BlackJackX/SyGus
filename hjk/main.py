@@ -4,6 +4,9 @@ import sexp
 import pprint
 import translator
 from hjk.transform import *
+from hjk.bottom2top import *
+from hjk.CEGIS import *
+
 
 def Extend(Stmts,Productions):
     ret = []
@@ -81,6 +84,9 @@ def main():
                 Productions[NTName].append(str(NT[1])) # deal with ('Int',0). You can also utilize type information, but you will suffer from these tuples.
             else:
                 Productions[NTName].append(NT)
+
+    b2t_search(bmExpr, checker)
+
     constraints = pipline(checker.Constraints)
     program = constraints2prog(constraints, FuncDefine)
     counterexample = checker.check(program)
