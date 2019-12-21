@@ -1,7 +1,7 @@
 from functools import reduce
 from itertools import product
 from z3 import *
-from baseline.translator import toString
+from hjk.translator import toString
 
 
 def constraint2clause(func, vars, constraints):

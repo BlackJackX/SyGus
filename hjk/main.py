@@ -3,9 +3,7 @@ import sys
 import sexp
 import pprint
 import translator
-from baseline.DNF import *
-from baseline.transform import *
-import os
+from hjk.transform import *
 
 def Extend(Stmts,Productions):
     ret = []
@@ -49,8 +47,8 @@ def constraints2prog(constraints, func):
 
 
 
-def main(test_path):
-    benchmarkFile = open(test_path)
+def main():
+    benchmarkFile = open(sys.argv[1])
     bm = stripComments(benchmarkFile)
     bmExpr = sexp.sexp.parseString(bm, parseAll=True).asList()[0] #Parse string to python list
     #pprint.pprint(bmExpr)
@@ -87,14 +85,7 @@ def main(test_path):
     program = constraints2prog(constraints, FuncDefine)
     counterexample = checker.check(program)
     if counterexample is None:
-        print('------------------------------')
-        print(FuncDefine)
         print(program)
-        print('------------------------------')
 
 if __name__ == '__main__':
-    for test in os.listdir('./open_tests'):
-        try:
-            main('./open_tests/'+test)
-        except:
-            pass
+    main()

@@ -1,7 +1,7 @@
 from functools import reduce
 from itertools import product
 from z3 import *
-from baseline.translator import toString
+from hjk.translator import toString
 from copy import deepcopy
 
 oplist = ['<', '>', '>=', '<=', '=', 'or', 'and', '+', '-']
