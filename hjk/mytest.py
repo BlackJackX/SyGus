@@ -6,6 +6,7 @@ import translator
 from hjk.DNF import *
 from hjk.transform import *
 import os
+from hjk.main import main
 
 def Extend(Stmts,Productions):
     ret = []
@@ -48,7 +49,7 @@ def constraints2prog(constraints, func):
     return s1 + s2 + s3
 
 
-
+'''
 def main(test_path):
     benchmarkFile = open(test_path)
     bm = stripComments(benchmarkFile)
@@ -91,10 +92,10 @@ def main(test_path):
         print(FuncDefine)
         print(program)
         print('------------------------------')
-
+'''
 if __name__ == '__main__':
-    for test in os.listdir('./open_tests'):
+    for test in os.listdir('./tests/hidden_tests'):
         try:
-            main('./open_tests/'+test)
+            main('./tests/hidden_tests/'+test)
         except:
             pass

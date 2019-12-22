@@ -51,7 +51,9 @@ def constraints2prog(constraints, func):
 
 
 def main():
+
     benchmarkFile = open(sys.argv[1])
+    #benchmarkFile = open(name)
     bm = stripComments(benchmarkFile)
     bmExpr = sexp.sexp.parseString(bm, parseAll=True).asList()[0] #Parse string to python list
     #pprint.pprint(bmExpr)
@@ -84,14 +86,20 @@ def main():
                 Productions[NTName].append(str(NT[1])) # deal with ('Int',0). You can also utilize type information, but you will suffer from these tuples.
             else:
                 Productions[NTName].append(NT)
+    #program = b2t_search(bmExpr, checker)
+    try:
+        constraints = pipline(checker.Constraints)
+        program = constraints2prog(constraints, FuncDefine)
+        counterexample = checker.check(program)
+        if counterexample is None:
+            print(program)
 
-    b2t_search(bmExpr, checker)
-
-    constraints = pipline(checker.Constraints)
-    program = constraints2prog(constraints, FuncDefine)
-    counterexample = checker.check(program)
-    if counterexample is None:
-        print(program)
+    except:
+        program = b2t_search(bmExpr, checker)
+        if program is not None:
+            print(program)
+        else:
+            print("not found!!!")
 
 if __name__ == '__main__':
     main()

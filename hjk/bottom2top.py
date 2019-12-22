@@ -9,7 +9,6 @@ end = 0
 T = 60*3
 
 def b2t_search(bmExpr, checker):
-    start = time.time()
     funcDefine = ' '.join(['define-fun', checker.synFunction.name, '(', ' '.join(list(map(lambda l: '(' + ' '.join(l) + ')', checker.synFunction.argList))), ')', checker.synFunction.retSort])
     intSet = [[],[]]
     boolSet = [[],[]]
@@ -52,12 +51,10 @@ def b2t_search(bmExpr, checker):
         mc = MyChecker('', checker)
         c = 1
         for ie in intSet[progSize]:
-            end = time.time()
-            if end-start > T:
-                print('Not found!!!')
-                return
+
             program = expr2prog(funcDefine, ie)
             mc.program = program
+            #print(program)
             """
             (conflict, counterexample) = mc.check()
             print("%d %s" %(c, program))
@@ -71,20 +68,18 @@ def b2t_search(bmExpr, checker):
                     mc.pts.append(counterexample)
             """
             counterexample = checker.check(program)
-            print("%d %s" %(c, program))
+            if counterexample is None:
+                return program
+
+            #print("%d %s" %(c, program))
             c += 1
 
         progSize += 1
         enum_exprs(exprs, progSize, ops)
-        end = time.time()
-        if end - start > T:
-            print('Not found!!!')
-            print(end, start)
-            return
-        #print(len(intSet[progSize]))
+
         cut_branch(exprs, progSize)
 
-    print('Not found!!!')
+    #print('Not found!!!')
 
 
 def enum_exprs(exprs, progsize, ops):
